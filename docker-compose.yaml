@@ -1,0 +1,58 @@
+version: '3.7'
+
+networks:
+  kafka-internal: null
+  main:
+    name: kafka-simple-main
+    external: true
+
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      kafka-internal: null
+
+  kafka:
+    image: docker.io/bitnami/kafka:3.3
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      main: null
+      kafka-internal: null
+
+  simple-pub:
+    build:
+      context: simple-pub
+    environment:
+      KAFKA_SERVER: "kafka:9092"
+    depends_on:
+      - kafka
+    networks:
+      main: null
+
+  simple-sub:
+    build:
+      context: simple-sub
+    environment:
+      KAFKA_SERVER: "kafka:9092"
+      KAFKA_CONSUMER_GROUP_ID: "simple-sub"
+    depends_on:
+      - simple-pub
+    networks:
+      main: null
+
+  another-sub:
+    build:
+      context: simple-sub
+    environment:
+      KAFKA_SERVER: "kafka:9092"
+      KAFKA_CONSUMER_GROUP_ID: "another-sub"
+    depends_on:
+      - simple-pub
+    networks:
+      main: null

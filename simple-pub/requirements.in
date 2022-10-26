@@ -1,0 +1,5 @@
+python-dotenv~=0.21.0
+Flask~=2.2.2
+gunicorn~=20.1.0
+Flask-APScheduler~=1.12.4
+kafka-python~=2.0.2
